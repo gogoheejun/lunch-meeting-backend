@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hj.lunchExpedition.meeting.mapper.MeetingMapper">
+
+    <select id="selectMeetingMakeCount" parameterType="int">
+        <![CDATA[
+        SELECT count(1) FROM meeting m
+        WHERE m.host_id = '100'
+        AND  m.start_time >= '2025-09-02 00:00:00'
+        AND m.start_time < '2025-09-03 00:00:00'
+        ]]>
+    </select>
+
+    <insert id="createMeeting" parameterType="com.hj.lunchExpedition.meeting.entity.MeetingEntity">
+        <![CDATA[
+        INSERT INTO meeting
+        (host_id, title, meeting_place, restaurant_name, start_time, end_time, max_participants_count, created_at, updated_at)
+        VALUES
+        (#{hostId}, #{title}, #{meetingPlace}, #{restaurantName}, #{startTime}, #{endTime}, #{maxParticipantsCount}, NOW(), NOW())
+        ]]>
+    </insert>
+
+    <!-- 총 개수 -->
+    <select id="countAllMeetings" resultType="int">
+        SELECT COUNT(*) FROM meeting
+    </select>
+
+    <select id="selectMeetingList" resultType="com.hj.lunchExpedition.meeting.dto.GetMeetingRDto">
+        SELECT
+        id,
+        host_id AS hostId,
+        title,
+        meeting_place AS meetingPlace,
+        restaurant_name AS restaurantName,
+        start_time AS startTime,
+        end_time AS endTime,
+        max_participants_count AS maxParticipantsCount,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+        FROM meeting
+        ORDER BY created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <insert id="insertMeetingApplication">
+        INSERT INTO MEETING_APPLICATION (
+        meeting_id,
+        applicant_id,
+        status,
+        applied_at
+        )
+        VALUES (
+        #{meetingId},
+        #{applicantId},
+        #{status},
+        NOW()
+        )
+    </insert>
+
+    <select id="selectMyMeetings" parameterType="long"
+            resultType="com.hj.lunchExpedition.meeting.dto.GetMyMeetingsRDto">
+        SELECT
+        id,
+        title,
+        meeting_place AS meetingPlace,
+        restaurant_name AS restaurantName,
+        start_time AS startTime,
+        end_time AS endTime,
+        max_participants_count AS maxParticipantsCount,
+        created_at AS createdAt
+        FROM meeting
+        WHERE host_id = #{hostId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 내가 신청한 모임 목록 조회 -->
+    <select id="selectAppliedMeetings" parameterType="long"
+            resultType="com.hj.lunchExpedition.meeting.dto.GetAppliedMeetingsRDto">
+
+        SELECT
+        m.id AS meetingId,
+        m.title,
+        m.meeting_place AS meetingPlace,
+        m.restaurant_name AS restaurantName,
+        m.start_time AS startTime,
+        m.end_time AS endTime,
+        m.max_participants_count AS maxParticipantsCount,
+        a.status,
+        a.applied_at AS appliedAt
+        FROM meeting_application a
+        JOIN meeting m ON a.meeting_id = m.id
+        WHERE a.applicant_id = #{applicantId}
+        ORDER BY a.applied_at DESC
+    </select>
+
+</mapper>

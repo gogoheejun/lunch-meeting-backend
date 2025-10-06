@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hj.lunchExpedition.user.mapper.UserMapper">
+
+    <resultMap id="UserMap" type="com.hj.lunchExpedition.user.entity.UserEntity">
+        <id     property="id"               column="id"/>
+        <result property="kakaoId"          column="kakao_id"/>
+        <result property="nickname"         column="nickname"/>
+        <result property="selfIntroduction" column="self_introduction"/>
+        <result property="approveStatus"    column="approve_status"/>
+        <result property="createdAt"        column="created_at"/>
+        <result property="updatedAt"        column="updated_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="UserMap">
+        SELECT id, kakao_id, nickname, self_introduction, approve_status, created_at, updated_at
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByNickname" resultMap="UserMap">
+        SELECT id, kakao_id, nickname, self_introduction, approve_status, created_at, updated_at
+        FROM user
+        WHERE nickname = #{nickname}
+    </select>
+
+    <insert id="insert" parameterType="com.hj.lunchExpedition.user.entity.UserEntity"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (nickname, self_introduction)
+        VALUES (#{nickname}, #{selfIntroduction})
+    </insert>
+
+</mapper>
