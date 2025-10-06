@@ -22,9 +22,9 @@ public class WebConfig implements WebMvcConfigurer{
                 registry.addMapping("/api/**")
                         .allowedOrigins("http://localhost:3001")  // ✅ 프론트 주소
                         .allowedOrigins("http://localhost:3000")
+                        .allowCredentials(true)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(false);
+                        .allowedHeaders("*");
             }
         };
     }
