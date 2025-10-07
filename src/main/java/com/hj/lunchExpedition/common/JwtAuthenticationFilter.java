@@ -59,7 +59,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ 토큰 유효 → 다음 필터로 진행
+        // ✅ 토큰 유효 → 요청 속성에 사용자 ID 저장 후 다음 필터로 진행
+        Long userId = jwtTokenProvider.getUserId(token);
+        request.setAttribute("userId", userId);
         filterChain.doFilter(request, response);
     }
 }

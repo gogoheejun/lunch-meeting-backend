@@ -6,6 +6,7 @@ import com.hj.lunchExpedition.meeting.mapper.MeetingMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -16,16 +17,24 @@ public class MeetingService {
 
     private final MeetingMapper meetingMapper;
 
-    public void createMeeting(CreateMeetingQDto dto){
+    public void createMeeting(Long hostId, CreateMeetingQDto dto){
+
+        if (hostId == null) {
+            throw new IllegalStateException("인증 정보가 존재하지 않습니다.");
+        }
 
         //중복 체크: 하루 두건만 등록가능
-        int meetingMakeCnt = meetingMapper.selectMeetingMakeCount();
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+
+        int meetingMakeCnt = meetingMapper.selectMeetingMakeCount(hostId, startOfDay, endOfDay);
         if(1 < meetingMakeCnt){
             throw new RuntimeException("하루에 2개까지만 만들기 가능");
         }
 
         MeetingEntity entity = MeetingEntity.builder()
-                .hostId(100L)
+                .hostId(hostId)
                 .title(dto.getTitle())
                 .meetingPlace(dto.getMeetingPlace())
                 .restaurantName(dto.getRestaurantName())
@@ -52,7 +61,11 @@ public class MeetingService {
                 .build();
     }
 
-    public boolean applyMeeting(ApplyMeetingQDto dto) {
+    public boolean applyMeeting(Long applicantId, ApplyMeetingQDto dto) {
+
+        if (applicantId == null) {
+            throw new IllegalStateException("인증 정보가 존재하지 않습니다.");
+        }
 
         // todo: 귀찮아서 나중에 처리..ㅋㅋ
         // 본인이 본인꺼 요청 못함
@@ -65,7 +78,7 @@ public class MeetingService {
 
         int insertedRows = meetingMapper.insertMeetingApplication(
                 dto.getMeetingId(),
-                dto.getApplicantId(),
+                Math.toIntExact(applicantId),
                 "PENDING"
         );
 
