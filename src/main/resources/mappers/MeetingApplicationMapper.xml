@@ -5,8 +5,7 @@
 <mapper namespace="com.hj.lunchExpedition.meeting.mapper.MeetingApplicationMapper">
 
     <!-- 특정 모임 신청자 목록 조회 -->
-    <select id="selectApplicantsByMeeting" parameterType="int"
-            resultType="com.hj.lunchExpedition.meeting.dto.MeetingApplicantRDto">
+    <select id="selectApplicantsByMeeting" resultType="com.hj.lunchExpedition.meeting.dto.MeetingApplicantRDto">
         SELECT
         ma.id,
         ma.applicant_id AS applicantId,
@@ -18,18 +17,30 @@
         FROM meeting_application ma
         LEFT JOIN user u ON ma.applicant_id = u.id
         WHERE ma.meeting_id = #{meetingId}
+        AND EXISTS (
+            SELECT 1
+            FROM meeting m
+            WHERE m.id = ma.meeting_id
+            AND m.host_id = #{hostId}
+        )
         ORDER BY ma.applied_at DESC
     </select>
 
     <!-- 신청 승인/거절 업데이트 -->
-    <update id="updateApplicationStatus" parameterType="com.hj.lunchExpedition.meeting.dto.UpdateApplicationStatusQDto">
-        UPDATE meeting_application
+    <update id="updateApplicationStatus">
+        UPDATE meeting_application ma
         SET
         status = #{status},
         responded_at = NOW()
-        WHERE meeting_id = #{meetingId}
-        AND applicant_id = #{applicantId}
-        AND status = 'PENDING'
+        WHERE ma.meeting_id = #{meetingId}
+        AND ma.applicant_id = #{applicantId}
+        AND ma.status = 'PENDING'
+        AND EXISTS (
+            SELECT 1
+            FROM meeting m
+            WHERE m.id = ma.meeting_id
+            AND m.host_id = #{hostId}
+        )
     </update>
 
 </mapper>

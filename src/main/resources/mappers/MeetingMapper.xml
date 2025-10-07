@@ -5,12 +5,13 @@
 
 <mapper namespace="com.hj.lunchExpedition.meeting.mapper.MeetingMapper">
 
-    <select id="selectMeetingMakeCount" parameterType="int">
+    <select id="selectMeetingMakeCount" resultType="int">
         <![CDATA[
-        SELECT count(1) FROM meeting m
-        WHERE m.host_id = '100'
-        AND  m.start_time >= '2025-09-02 00:00:00'
-        AND m.start_time < '2025-09-03 00:00:00'
+        SELECT COUNT(1)
+        FROM meeting m
+        WHERE m.host_id = #{hostId}
+        AND m.start_time >= #{startOfDay}
+        AND m.start_time < #{endOfDay}
         ]]>
     </select>
 
@@ -94,6 +95,15 @@
         JOIN meeting m ON a.meeting_id = m.id
         WHERE a.applicant_id = #{applicantId}
         ORDER BY a.applied_at DESC
+    </select>
+
+    <select id="countMeetingOwnedByHost" resultType="int">
+        <![CDATA[
+        SELECT COUNT(1)
+        FROM meeting
+        WHERE id = #{meetingId}
+        AND host_id = #{hostId}
+        ]]>
     </select>
 
 </mapper>
